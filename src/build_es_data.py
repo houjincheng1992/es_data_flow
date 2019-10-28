@@ -98,6 +98,12 @@ def build_es_data(db, es):
 
 		try:
 			result = helpers.bulk(es, insert_list, index = "education_student_info", raise_on_error = True)
+			result_json = json.loads(result)
+			for index in range(0, len(result_json["items"])):
+				item = result_json["items"][index]
+				if item["update"]["status"] >= 200 and item["update"]["status"] < 300:
+					continue
+				build_index_reload_log.logger.info("%s" % json.dumps(item, cls = DatetimeEncoder))
 		except Exception as e:
 			build_index_error_log.logger.warning("%s" % e)
 			build_index_reload_log.logger.info("%s" % json.dumps(insert_list, cls = DatetimeEncoder))
